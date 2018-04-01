@@ -1,15 +1,20 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
+const { validate } = require('./utils/validate')
 
 const app = express();
 
 // Connect to Mongoose
-mongoose.connect('mongodb://localhost/url-shortener')
+mongoose.connect('mongodb://localhost/url-shortener') // setup mLab and config file
   .then(() => console.log('MongoDB Connected...'))
   .catch(err => console.log(err));
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Url Model/Schema
+require('./models/url');
+const Url = mongoose.model('urls');
 
 // Routes
 app.get('/', (req, res) => {
@@ -19,26 +24,32 @@ app.get('/', (req, res) => {
 // Create New Shortened URL
 app.get('/new/:url*', (req, res) => {
   const url = req.params.url + req.params['0'];
-  const regex = RegExp(/https?:\/\/[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]/g);
+  
 
   // validate url
-  if(regex.test(url)) {
-    res.send('Passed!');
+  if (validate(url)) {
+    res.send('Passed!'); // for dev only DELETE
+    new Url({ url })
+      .save()
+      .then(item => {
+        res.send(item);
+      })
   } else {
-    res.send({ "error": "Invalide URL" })
+    res.status(400).send({ "error": "Invalide URL" })
   }
 });
 
-/* 
+
 // Redirect from Shortened url
 app.get('/:id', (req, res) => {
+  res.send('getting url...')
   // get id
 
   // retreive id from db
 
   // redirect to url
 });
- */
+
 
 const port = process.env.PORT || 5000;
 
