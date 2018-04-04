@@ -3,10 +3,12 @@ const mongoose = require('mongoose');
 const path = require('path');
 
 const { Url } = require('./models/url');
-const { checkForDuplicate, addNewUrl } = require('./utils/db');
+const { checkForDuplicate, addNewUrl, findByShortUrl } = require('./utils/db');
 const { validate } = require('./utils/validate');
 
 const app = express();
+
+const port = process.env.PORT || 5000;
 
 // Connect to Mongoose
 mongoose.connect('mongodb://localhost/url-shortener') // setup mLab and config file
@@ -15,7 +17,9 @@ mongoose.connect('mongodb://localhost/url-shortener') // setup mLab and config f
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Routes
+// ==========
+//   Routes
+// ==========
 app.get('/', (req, res) => {
   res.sendFile('/views/index.html', { root: __dirname });
 });
@@ -30,23 +34,22 @@ app.get('/new/:url*', (req, res) => {
     checkForDuplicate(url)
       .then(match => {
         if(match) {
-          console.log('Match found!', match);
           res.status(200).send({
             originalUrl: match.original,
-            shortenedUrl: `https://www.myurl.com/${match.shortened}`
+            shortenedUrl: `${req.protocol}://${req.hostname}:${port}/${match.shortened}` // will this work when deployed (the ":")?
           })
         } else {
           // If new url add to database
-          console.log('no matches!'); // DELETE ME
           addNewUrl(url)
             .then(savedUrl => {
               res.status(200).send({
                 originalUrl: savedUrl.original,
-                shortenedUrl: `https://www.myurl.com/${savedUrl.shortened}`
+                shortenedUrl: `${req.protocol}://${req.hostname}:${port}/${savedUrl.shortened}`
               })
             })
             .catch(e => {
               console.log(e);
+              res.status(500);
             })
         }
       })
@@ -55,23 +58,32 @@ app.get('/new/:url*', (req, res) => {
         res.status(500);
       })
   } else {
-    res.status(400).send({ "error": "Invalide URL" })
+    res.status(400).send({ "error": "Invalide URL" });
   }
 });
 
 
 // Redirect from Shortened url
-app.get('/:id', (req, res) => {
-  res.send('getting url...')
-  // get id
+app.get('/:urlCode', (req, res) => {
+  const urlCode = parseInt(req.params.urlCode);
 
-  // retreive id from db
-
-  // redirect to url
+  if(!isNaN(urlCode)) {
+    findByShortUrl(urlCode)
+      .then(url => {
+        if(url) {
+          res.redirect(url);
+        } else {
+          res.status(400).send({ "error": "URL does not exist" });
+        }
+      })
+      .catch(e => {
+        console.log(e);
+        res.status(500);
+      });
+  } else {
+    res.status(400).send({ "error": "Invalide URL" });
+  }
 });
-
-
-const port = process.env.PORT || 5000;
 
 app.listen(port, () => {
   console.log(`App is listening on port ${port}`);

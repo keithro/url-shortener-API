@@ -1,10 +1,9 @@
 const { Url } = require('../models/url');
 
-// Create short url code
 function createShortUrlCode() {
   return Url.find().sort({ "shortened": -1 }).limit(1).then(last => {
     console.log(last);
-    return last ? last[0].shortened + 1 : 1000;
+    return last.length ? last[0].shortened + 1 : 1000;
   });
 }
 
@@ -12,8 +11,7 @@ function checkForDuplicate(url) {
   return Url
     .find({ original: url })
     .then(match => {
-      return match[0] || null;
-      // return match ? match[0] : null;
+      return match[0];
     });
 }
 
@@ -24,44 +22,20 @@ function addNewUrl(url) {
       shortened: shortCode
     }
 
-    return new Url(newUrl) // Does this not return a promise?
-      .save()
-      // .then(savedUrl => {
-      //   console.log(savedUrl);
-      //   return savedUrl;
-      // });
+    return new Url(newUrl).save()
   })
+}
+
+function findByShortUrl(urlCode) {
+  return Url
+    .find({ shortened: urlCode })
+    .then(match => {
+      return match.length ? match[0].original : null;
+    });
 }
 
 module.exports = {
   checkForDuplicate,
-  addNewUrl
+  addNewUrl,
+  findByShortUrl
 }
-
-/* 
-module.exports = {
-  // checkForDuplicate
-  checkForDuplicate: function(url) {
-    return Url
-      .findOne({ original: url })
-      .then(match => {
-        return match;
-      });
-  },
-
-  addNewUrl: function(url) {
-    createShortUrlCode().then(shortCode => {
-      const newUrl = {
-        original: url,
-        shortened: shortCode
-      }
-
-      return new Url(newUrl)
-        .save()
-        .then(savedUrl => {
-          return savedUrl;
-        });
-    })
-  }
-}
- */
