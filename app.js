@@ -1,7 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
-const { validate } = require('./utils/validate')
+
+const { Url } = require('./models/url');
+const { checkForDuplicate, addNewUrl } = require('./utils/db');
+const { validate } = require('./utils/validate');
 
 const app = express();
 
@@ -12,27 +15,48 @@ mongoose.connect('mongodb://localhost/url-shortener') // setup mLab and config f
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Url Model/Schema
+/* // Url Model/Schema
 require('./models/url');
-const Url = mongoose.model('urls');
+const Url = mongoose.model('urls'); */
 
 // Routes
 app.get('/', (req, res) => {
   res.sendFile('/views/index.html', { root: __dirname });
 });
 
-// Create New Shortened URL
+// New Url Route
 app.get('/new/:url*', (req, res) => {
   const url = req.params.url + req.params['0'];
   
-
   // validate url
   if (validate(url)) {
-    res.send('Passed!'); // for dev only DELETE
-    new Url({ url })
-      .save()
-      .then(item => {
-        res.send(item);
+    // Check for duplicates
+    checkForDuplicate(url)
+      .then(match => {
+        console.log('Match found!', match);
+        if(match) {
+          res.status(200).send({
+            originalUrl: match.original,
+            shortenedUrl: `https://www.myurl.com/${match.shortened}`
+          })
+        } else {
+          // If new url add to database
+          console.log('no matches!'); // DELETE ME
+          addNewUrl(url)
+            .then(savedUrl => {
+              res.status(200).send({
+                originalUrl: savedUrl.original,
+                shortenedUrl: `https://www.myurl.com/${savedUrl.shortened}`
+              })
+            })
+            .catch(e => {
+              console.log(e);
+            })
+        }
+      })
+      .catch(e => {
+        console.log(e);
+        res.status(500);
       })
   } else {
     res.status(400).send({ "error": "Invalide URL" })
@@ -54,5 +78,5 @@ app.get('/:id', (req, res) => {
 const port = process.env.PORT || 5000;
 
 app.listen(port, () => {
-  `App is listening on port ${port}`;
+  console.log(`App is listening on port ${port}`);
 });
