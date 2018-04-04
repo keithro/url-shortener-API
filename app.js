@@ -15,10 +15,6 @@ mongoose.connect('mongodb://localhost/url-shortener') // setup mLab and config f
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-/* // Url Model/Schema
-require('./models/url');
-const Url = mongoose.model('urls'); */
-
 // Routes
 app.get('/', (req, res) => {
   res.sendFile('/views/index.html', { root: __dirname });
@@ -33,8 +29,8 @@ app.get('/new/:url*', (req, res) => {
     // Check for duplicates
     checkForDuplicate(url)
       .then(match => {
-        console.log('Match found!', match);
         if(match) {
+          console.log('Match found!', match);
           res.status(200).send({
             originalUrl: match.original,
             shortenedUrl: `https://www.myurl.com/${match.shortened}`

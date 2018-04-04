@@ -12,12 +12,13 @@ function checkForDuplicate(url) {
   return Url
     .find({ original: url })
     .then(match => {
-      return match[0];
+      return match[0] || null;
+      // return match ? match[0] : null;
     });
 }
 
 function addNewUrl(url) {
-  createShortUrlCode().then(shortCode => {
+  return createShortUrlCode().then(shortCode => {
     const newUrl = {
       original: url,
       shortened: shortCode
@@ -25,10 +26,10 @@ function addNewUrl(url) {
 
     return new Url(newUrl) // Does this not return a promise?
       .save()
-      .then(savedUrl => {
-        console.log(savedUrl);
-        return savedUrl;
-      });
+      // .then(savedUrl => {
+      //   console.log(savedUrl);
+      //   return savedUrl;
+      // });
   })
 }
 
