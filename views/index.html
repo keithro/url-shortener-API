@@ -4,11 +4,51 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Url Shortener</title>
+
+  <link rel="stylesheet" href="css/style.css">
+  <title>URL Shortener</title>
 </head>
+
 <body>
-  <main>
-    <h1>Welcome to the URL Shortener</h1>
-  </main>
+  <div class="container">
+    <header>
+      <h1>URL Shortener Microservice API</h1>
+      <h2>Coded by
+        <a href="http://www.keithrodriguez.me/">Keith Rodriguez</a>
+      </h2>
+      <p>My project for the
+        <a href="https://www.freecodecamp.org/challenges/url-shortener-microservice">URL Shortener Microservice challenge</a> as part of the curriculum for the Back End Development Certification on
+        <a href="https://www.freecodecamp.org">Free Code Camp</a>.</p>
+      <p>View the
+        <a href="https://github.com/keithro/url-shortener-API">source code</a> for this project.</p>
+    </header>
+    <main>
+      <h2>Example Usage</h2>
+      <h3>Creation Shortened Url:</h3>
+      <div class="code-block">
+        <p>
+          <code>https://UPDATE_ME_AFTER_DEPLOY.herokuapp.com/new/https://www.yourlongurl.com/wish-this-could-be-shorter</code>
+        </p>
+      </div>
+      <h3>Response Output:</h3>
+      <div class="code-block">
+        <p>
+          <code>{ originalUrl: "https://www.yourlongurl.com/wish-this-could-be-shorter", shortenedUrl: "http://UPDATE_ME_AFTER_DEPLOY.herokuapp.com/3206" }</code>
+        </p>
+      </div>
+      <h3>Navagation to Short Url:</h3>
+      <div class="code-block">
+        <p>
+          <code>http://UPDATE_ME_AFTER_DEPLOY.herokuapp.com/3206</code>
+        </p>
+      </div>
+      <h3>Will Redirect To:</h3>
+      <div class="code-block">
+        <p>
+          <code>https://www.yourlongurl.com/wish-this-could-be-shorter</code>
+        </p>
+      </div>
+    </main>
+  </div>
 </body>
 </html>

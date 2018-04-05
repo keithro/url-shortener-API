@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 
 const { Url } = require('./models/url');
-const { checkForDuplicate, addNewUrl, findByShortUrl } = require('./utils/db');
+const { checkForDuplicates, addNewUrl, findByShortUrl } = require('./utils/db');
 const { validate } = require('./utils/validate');
 
 const app = express();
@@ -17,9 +17,7 @@ mongoose.connect('mongodb://localhost/url-shortener') // setup mLab and config f
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ==========
 //   Routes
-// ==========
 app.get('/', (req, res) => {
   res.sendFile('/views/index.html', { root: __dirname });
 });
@@ -30,8 +28,7 @@ app.get('/new/:url*', (req, res) => {
   
   // validate url
   if (validate(url)) {
-    // Check for duplicates
-    checkForDuplicate(url)
+    checkForDuplicates(url)
       .then(match => {
         if(match) {
           res.status(200).send({

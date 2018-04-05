@@ -7,7 +7,7 @@ function createShortUrlCode() {
   });
 }
 
-function checkForDuplicate(url) {
+function checkForDuplicates(url) {
   return Url
     .find({ original: url })
     .then(match => {
@@ -35,7 +35,7 @@ function findByShortUrl(urlCode) {
 }
 
 module.exports = {
-  checkForDuplicate,
+  checkForDuplicates,
   addNewUrl,
   findByShortUrl
 }
