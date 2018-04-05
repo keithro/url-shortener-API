@@ -11,6 +11,7 @@ const UrlSchema = new mongoose.Schema({
   }
 });
 
-const Url = mongoose.model('urls', UrlSchema);
+// Compile Schema into model
+const Url = mongoose.model('Url', UrlSchema);
 
-module.exports = { Url };
+module.exports = Url;

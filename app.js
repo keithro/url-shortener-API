@@ -1,19 +1,12 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const path = require('path');
 
-const { Url } = require('./models/url');
+const { Url } = require('./models');
 const { checkForDuplicates, addNewUrl, findByShortUrl } = require('./utils/db');
 const { validate } = require('./utils/validate');
 
 const app = express();
-
 const port = process.env.PORT || 5000;
-
-// Connect to Mongoose
-mongoose.connect('mongodb://localhost/url-shortener') // setup mLab and config file
-  .then(() => console.log('MongoDB Connected...'))
-  .catch(err => console.log(err));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -31,7 +24,7 @@ app.get('/new/:url*', (req, res) => {
     checkForDuplicates(url)
       .then(match => {
         if(match) {
-          res.status(200).send({
+          res.status(200).json({
             originalUrl: match.original,
             shortenedUrl: `${req.protocol}://${req.hostname}:${port}/${match.shortened}` // will this work when deployed (the ":")?
           })
@@ -39,7 +32,7 @@ app.get('/new/:url*', (req, res) => {
           // If new url add to database
           addNewUrl(url)
             .then(savedUrl => {
-              res.status(200).send({
+              res.status(200).json({
                 originalUrl: savedUrl.original,
                 shortenedUrl: `${req.protocol}://${req.hostname}:${port}/${savedUrl.shortened}`
               })
@@ -55,7 +48,7 @@ app.get('/new/:url*', (req, res) => {
         res.status(500);
       })
   } else {
-    res.status(400).send({ "error": "Invalide URL" });
+    res.status(400).json({ "error": "Invalide URL" });
   }
 });
 

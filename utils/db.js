@@ -1,4 +1,4 @@
-const { Url } = require('../models/url');
+const { Url } = require('../models');
 
 function createShortUrlCode() {
   return Url.find().sort({ "shortened": -1 }).limit(1).then(last => {
